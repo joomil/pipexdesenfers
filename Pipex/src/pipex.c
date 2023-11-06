@@ -19,8 +19,8 @@ int	main(int ac, char **av, char **env)
 
 	if (ac != 5)
 	{
-		errno = EINVAL;	
-		perror(strerror(errno));
+		errno = EINVAL;
+		perror("Dr Vinklestein says: enter 4 arguments");
 		exit(EXIT_FAILURE);
 	}
 	if (pipe(p_fd) == -1)
@@ -40,6 +40,7 @@ void	child(char **av, int *p_fd, char **env)
 
 	fd = open_file(av[1], 0);
 	dup2(fd, STDIN_FILENO);
+	close(fd);
 	dup2(p_fd[1], STDOUT_FILENO);
 	close(p_fd[0]);
 	exec(av[2], env);
@@ -51,6 +52,7 @@ void	parent(char **av, int *p_fd, char **env)
 
 	fd = open_file(av[4], 1);
 	dup2(fd, STDOUT_FILENO);
+	close(fd);
 	dup2(p_fd[0], STDIN_FILENO);
 	close(p_fd[1]);
 	exec(av[3], env);
@@ -65,8 +67,7 @@ void	exec(char *cmd, char **env)
 	path = ft_get_path(s_cmd[0], env);
 	if (execve(path, s_cmd, env) == -1)
 	{
-		errno = EACCES;
-		perror(strerror(errno));
+		perror("Shpongolese not spoken here, enter correct commands");
 		ft_free_tab(s_cmd);
 		exit(EXIT_FAILURE);
 	}
@@ -79,11 +80,10 @@ int	open_file(char *file, int in_or_out)
 	if (in_or_out == 0)
 		ret = open(file, O_RDONLY, 0444);
 	if (in_or_out == 1)
-		ret = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+		ret = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (ret == -1)
 	{
-		errno = EIO;
-		perror(strerror(errno));
+		perror("Are you Shpongled?");
 		exit(EXIT_FAILURE);
 	}
 	return (ret);
